@@ -1,11 +1,9 @@
 package com.example.portfolio.controller;
 
+import java.security.Principal;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,40 +12,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.portfolio.model.Portfolio;
+import com.example.portfolio.model.PortfolioItem;
 import com.example.portfolio.model.User;
 import com.example.portfolio.repository.UserRepository;
 import com.example.portfolio.service.PortfolioService;
 
 @RestController
-@RequestMapping("/api/portfolios")
+@RequestMapping("/api/portfolio")
 public class PortfolioController {
 
-    @Autowired
-    private PortfolioService portfolioService;
+    private final PortfolioService portfolioService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public PortfolioController(PortfolioService portfolioService, UserRepository userRepository) {
+        this.portfolioService = portfolioService;
+        this.userRepository = userRepository;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Portfolio>> getUserPortfolios(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = userRepository.findByUsername(userDetails.getUsername())
+    public ResponseEntity<List<PortfolioItem>> getUserPortfolioItems(Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(portfolioService.getPortfoliosByUser(user));
+        List<PortfolioItem> items = portfolioService.getUserPortfolioItems(user);
+        return ResponseEntity.ok(items);
     }
 
     @PostMapping
-    public ResponseEntity<Portfolio> createPortfolio(@AuthenticationPrincipal UserDetails userDetails,
-                                                     @RequestBody Portfolio input) {
-        User user = userRepository.findByUsername(userDetails.getUsername())
+    public ResponseEntity<PortfolioItem> addPortfolioItem(@RequestBody PortfolioItem item, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Portfolio portfolio = portfolioService.createPortfolio(input.getName(), user);
-        return ResponseEntity.ok(portfolio);
+        item.setUser(user);
+        PortfolioItem savedItem = portfolioService.addPortfolioItem(item);
+        return ResponseEntity.ok(savedItem);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePortfolio(@PathVariable Long id) {
-        portfolioService.deletePortfolio(id);
+    public ResponseEntity<?> deletePortfolioItem(@PathVariable Long id) {
+        portfolioService.deletePortfolioItem(id);
         return ResponseEntity.noContent().build();
     }
 }

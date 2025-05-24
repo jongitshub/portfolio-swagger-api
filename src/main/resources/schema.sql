@@ -1,6 +1,7 @@
+/*
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS role;
-DROP TABLE IF EXISTS app_user;
+DROP TABLE IF EXISTS app_user CASCADE;
 
 CREATE TABLE role (
     id SERIAL PRIMARY KEY,
@@ -29,3 +30,5 @@ INSERT INTO app_user (username, password)
 VALUES ('testuser', '$2a$10$Dow1UQBAO1Z7l4/TFBtLdeQyEM08OvBPDbDJjDJHqXfwF4WyeC9K6');
 
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1);
+
+*/

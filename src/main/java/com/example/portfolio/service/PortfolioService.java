@@ -1,35 +1,31 @@
 package com.example.portfolio.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.portfolio.model.Portfolio;
+import com.example.portfolio.model.PortfolioItem;
 import com.example.portfolio.model.User;
-import com.example.portfolio.repository.PortfolioRepository;
+import com.example.portfolio.repository.PortfolioItemRepository;
 
 @Service
 public class PortfolioService {
 
-    @Autowired
-    private PortfolioRepository portfolioRepository;
+    private final PortfolioItemRepository portfolioItemRepository;
 
-    public List<Portfolio> getPortfoliosByUser(User user) {
-        return portfolioRepository.findByOwner(user);
+    public PortfolioService(PortfolioItemRepository portfolioItemRepository) {
+        this.portfolioItemRepository = portfolioItemRepository;
     }
 
-    public Optional<Portfolio> getPortfolioById(Long id) {
-        return portfolioRepository.findById(id);
+    public List<PortfolioItem> getUserPortfolioItems(User user) {
+        return portfolioItemRepository.findByUser(user);
     }
 
-    public Portfolio createPortfolio(String name, User owner) {
-        Portfolio portfolio = new Portfolio(name, owner);
-        return portfolioRepository.save(portfolio);
+    public PortfolioItem addPortfolioItem(PortfolioItem item) {
+        return portfolioItemRepository.save(item);
     }
 
-    public void deletePortfolio(Long id) {
-        portfolioRepository.deleteById(id);
+    public void deletePortfolioItem(Long id) {
+        portfolioItemRepository.deleteById(id);
     }
 }
