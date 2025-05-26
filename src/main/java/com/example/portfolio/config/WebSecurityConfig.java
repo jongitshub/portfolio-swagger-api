@@ -42,6 +42,7 @@ public class WebSecurityConfig {
             .authorizeHttpRequests()
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/api/crypto/**").permitAll() // Allow public access to crypto API
             .anyRequest().authenticated()
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
